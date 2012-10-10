@@ -791,6 +791,9 @@ var CombatResolver = function() {
     this._isResolvingEnemy = false;
     this._timeAppliedLastCard = 0;
 
+    this._bounce = 0;
+    this._bounceCurve = 0;
+
     this.init();
 }
 
@@ -862,6 +865,9 @@ CombatResolver.prototype = {
     },
 
     step: function(dt) {
+        this._bounce += 10 * dt;
+        this._bounceCurve = Math.abs(Math.sin(this._bounce));
+
         if (this._isExecuting) {
             var now = new Date().getTime();
             var timeSinceAppliedLastCard = now - this._timeAppliedLastCard;
@@ -1009,9 +1015,10 @@ CombatResolver.prototype = {
             }
         }
 
-        position.y += slotFrame.h + 16;
-
         var canExecuteTappedCards = this.canExecute();
+        var bounceOffset = canExecuteTappedCards ? this._bounceCurve * 3 : 0;
+
+        position.y += slotFrame.h + 16 + bounceOffset;
 
         context.fillStyle = 'rgba(255, 255, 255, ' + (canExecuteTappedCards ? '1)' : '0.5)');
 
